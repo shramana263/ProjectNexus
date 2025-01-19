@@ -2,7 +2,7 @@
 
 namespace App\Notifications;
 
-
+use App\Models\EmailVerification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -19,20 +19,22 @@ class EmailVerificationNotification extends Notification
     public $mailer;
     public $email;
     public $name;
+    public $user;
     private $otp;
+
 
     /**
      * Create a new notification instance.
      */
-    public function __construct(string $email, string $name)
+    public function __construct(object $user)
     {
-        $this->email = $email; // Assign the email to the property
-        $this->name = $name;
+        $this->user= $user;
+        $this->email = $user->email; // Assign the email to the property
+        $this->name = $user->name;
         $this->message = 'Use the following OTP to verify your email address';
         $this->subject = 'Email Verification';
         $this->fromEmail = 'student@healnearn.com';
         $this->mailer='smtp';
-        $this->otp= new Otp;
     }
 
     /**
@@ -50,14 +52,20 @@ class EmailVerificationNotification extends Notification
      */
     public function toMail(object $notifiable): MailMessage
     {
-        $otp= $this->otp->generate($this->email, 'numeric', 6, 60);
-        Session::put('otp',$otp);
+        $otp= random_int(100000,999999);
+        $tempUser = EmailVerification::create(array_merge(
+            $this->user->toArray(),
+            [
+                'password' => bcrypt($this->user->password),
+                'otp'=>random_int(100000,999999)
+            ]
+        ));
         return (new MailMessage)
             ->mailer('smtp')
             ->subject($this->subject)
             ->greeting('Hello!'.$this->name)
             ->line($this->message)
-            ->line('code: '.$otp->token);
+            ->line('code: '.$this->user->otp);
     }
 
     /**

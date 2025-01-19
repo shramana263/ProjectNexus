@@ -22,7 +22,7 @@ class EmailVerificationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email'=>['required','email','exists:users'],
+            'email'=>['required','email'],
             'otp'=>['required','max:6'],
         ];
     }

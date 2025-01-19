@@ -8,6 +8,7 @@ use Auth;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\FacultyIdController;
 use App\Http\Requests\Auth\EmailVerificationRequest;
+use App\Models\EmailVerification;
 use App\Notifications\EmailVerificationNotification;
 use Ichtrojan\Otp\Otp;
 use Illuminate\Support\Facades\Notification;
@@ -19,15 +20,16 @@ class AuthController extends Controller
 
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['sendOtp','register', 'login']]);
-        $this->otp= new Otp;
+        $this->middleware('auth:api', ['except' => ['sendOtp', 'register', 'login']]);
+        $this->otp = new Otp;
     }
 
-    public function sendOtp(Request $request){
+    public function sendOtp(Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string',
             'email' => 'required|string|email|unique:users',
-            'role'=>'required|string',
+            'role' => 'required|string',
             'contact_no' => 'required|string',
             'password' => 'required|string|min:6',
         ]);
@@ -36,15 +38,15 @@ class AuthController extends Controller
             return response()->json($validator->errors()->toJson(), 400);
         }
 
-        Session::put('user_data',$validator->validated());
+        Session::put('user_data', $validator->validated());
         // $user= $request;
-        
+
         // $user= User::create(array_merge(
         //     $validator->validated(),
         //     ['password' => bcrypt($request->password)]      
         // ));
         // notify(new EmailVerificationNotification());
-        Notification::route('mail', $request->email)->notify(new EmailVerificationNotification($request->email, $request->name));
+        Notification::route('mail', $request->email)->notify(new EmailVerificationNotification($request));
 
         // if($user->role == 'faculty'){
         //     $facultyIdController = new FacultyIdController();
@@ -57,36 +59,40 @@ class AuthController extends Controller
         // ],201);
 
         return response()->json([
-            'message'=>'OTP sent to your email'
+            'message' => 'OTP sent to your email'
         ]);
-
-
     }
 
-    public function register(EmailVerificationRequest $request){
+    public function register(EmailVerificationRequest $request)
+    {
 
-        $otp2= $this->otp->validate($request->email, $request->otp);
-        if(!$otp2->status){
-            return response()->json(['error'=>$otp2],401);
+        $otp1 = $request->otp;
+        $email1 = $request->email;
+        $fetchedUser = EmailVerification::where('otp', $request->otp)->first();
+        if ($fetchedUser==null) {
+            return response()->json([
+                'message'=>'Invalid OTP given'
+                // 'useremail'=>$fetchedUser->otp,
+                // 'input'=>$request->otp
+            ],401);
         }
-
-        $userdata= Session::get('user_data');
-        if(!$userdata){
-            return response()->json(['error'=>'Session expired or invalid'],401);
+        
+        if ($request->otp != $fetchedUser->otp || $request->email != $fetchedUser->email) {
+            return response()->json(['error' => 'Invalid OTP'], 401);
+            
         }
 
         $user = User::create(array_merge(
-            $userdata,
+            $fetchedUser->toArray(),
             [
-                'password'=>bcrypt($userdata['password']),
-                'email_verified_at'=>now()
+                'email_verified_at' => now()
             ]
-            ));
+        ));
 
-            return response()->json([
-                'message'=>'User successfully registered',
-                'user'=>$user
-            ]);
+        return response()->json([
+            'message' => 'User successfully registered',
+            'user' => $user
+        ],201);
 
         // $user= User::where('email', $request->email)->first();
         // $user->update(['email_verified_at'=>now()]);
@@ -94,7 +100,8 @@ class AuthController extends Controller
 
 
 
-    public function login(Request $request){
+    public function login(Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'email' => 'required|string|email',
             'password' => 'required|string|min:6',
@@ -104,15 +111,15 @@ class AuthController extends Controller
             return response()->json($validator->errors(), 422);
         }
 
-        if(!$token=auth()->attempt($validator->validated())){
-            return response()->json(['error'=>'Unauthorized'],401);
+        if (!$token = auth()->attempt($validator->validated())) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
 
         return $this->createNewToken($token);
-
     }
 
-    public function createNewToken($token){
+    public function createNewToken($token)
+    {
         return response()->json([
             'access_token' => $token,
             'token_type' => 'bearer',
@@ -121,12 +128,14 @@ class AuthController extends Controller
         ]);
     }
 
-    public function user(){
+    public function user()
+    {
         return response()->json(auth()->user());
     }
 
-    public function logout(){
+    public function logout()
+    {
         auth('api')->logout();
-        return response()->json(['message'=>'User successfully signed out']);
+        return response()->json(['message' => 'User successfully signed out']);
     }
 }
