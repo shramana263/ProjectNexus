@@ -88,6 +88,10 @@ class AuthController extends Controller
                 'email_verified_at' => now()
             ]
         ));
+        // if($user->role == 'faculty'){
+        //     $facultyIdController = new FacultyIdController();
+        //     $facultyIdController->store($user->uuid);
+        // }
 
         return response()->json([
             'message' => 'User successfully registered',
