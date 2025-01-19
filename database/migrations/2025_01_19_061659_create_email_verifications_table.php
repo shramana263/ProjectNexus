@@ -16,6 +16,7 @@ return new class extends Migration
             $table->timestamps();
             $table->string('email');
             $table->string('otp')->nullable();
+            $table->string('expires_at')->nullable();
             $table->string('name');
             $table->string('role')->default('student');
             $table->string('contact_no');

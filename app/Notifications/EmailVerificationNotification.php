@@ -52,7 +52,17 @@ class EmailVerificationNotification extends Notification
      */
     public function toMail(object $notifiable): MailMessage
     {
-        $otp= random_int(100000,999999);
+        $fetchedUser= EmailVerification::where('email',$this->user->email)->first();
+        if($fetchedUser){
+            $fetchedUser->otp= random_int(100000, 999999);
+            $fetchedUser->save();
+            return (new MailMessage)
+            ->mailer('smtp')
+            ->subject($this->subject)
+            ->greeting('Hello!'.$this->name)
+            ->line($this->message)
+            ->line('code: '.$fetchedUser->otp);
+        }
         $tempUser = EmailVerification::create(array_merge(
             $this->user->toArray(),
             [
@@ -65,7 +75,7 @@ class EmailVerificationNotification extends Notification
             ->subject($this->subject)
             ->greeting('Hello!'.$this->name)
             ->line($this->message)
-            ->line('code: '.$this->user->otp);
+            ->line('code: '.$tempUser->otp);
     }
 
     /**
