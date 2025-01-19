@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Models\EmailVerification;
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -52,9 +53,11 @@ class EmailVerificationNotification extends Notification
      */
     public function toMail(object $notifiable): MailMessage
     {
+        $now = Carbon::now();
         $fetchedUser= EmailVerification::where('email',$this->user->email)->first();
         if($fetchedUser){
             $fetchedUser->otp= random_int(100000, 999999);
+            $fetchedUser->expires_at = $now->addDay();
             $fetchedUser->save();
             return (new MailMessage)
             ->mailer('smtp')
@@ -67,7 +70,8 @@ class EmailVerificationNotification extends Notification
             $this->user->toArray(),
             [
                 'password' => bcrypt($this->user->password),
-                'otp'=>random_int(100000,999999)
+                'otp'=>random_int(100000,999999),
+                'expires_at' => $now->addDay()
             ]
         ));
         return (new MailMessage)

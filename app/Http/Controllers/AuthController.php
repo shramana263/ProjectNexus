@@ -66,20 +66,20 @@ class AuthController extends Controller
     public function register(EmailVerificationRequest $request)
     {
 
-        $otp1 = $request->otp;
-        $email1 = $request->email;
         $fetchedUser = EmailVerification::where('otp', $request->otp)->first();
         if ($fetchedUser==null) {
             return response()->json([
                 'message'=>'Invalid OTP given'
-                // 'useremail'=>$fetchedUser->otp,
-                // 'input'=>$request->otp
             ],401);
         }
         
         if ($request->otp != $fetchedUser->otp || $request->email != $fetchedUser->email) {
             return response()->json(['error' => 'Invalid OTP'], 401);
             
+        }
+
+        if($fetchedUser->expires_at < now()){
+            return response()->json(['error'=>'OTP has expired, request for new OTP']);
         }
 
         $user = User::create(array_merge(
