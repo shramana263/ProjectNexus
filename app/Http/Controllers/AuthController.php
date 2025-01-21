@@ -21,7 +21,7 @@ class AuthController extends Controller
 
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['sendOtp', 'register', 'login']]);
+        $this->middleware('auth:api', ['except' => ['sendOtp', 'register', 'login','forget_password']]);
         $this->otp = new Otp;
     }
 

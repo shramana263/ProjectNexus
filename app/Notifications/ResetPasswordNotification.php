@@ -65,8 +65,8 @@ class ResetPasswordNotification extends Notification
                 ->line('code: ' . $fetchedUser->otp);
         }
 
-        $user = User::where('email', $this->user->email)->first();
-        if ($user) {
+        // $user = User::where('email', $this->user->email)->first();
+        // if ($user) {
 
             $tempUser = ResetPassword::create(array_merge(
                 $this->user->toArray(),
@@ -82,11 +82,11 @@ class ResetPasswordNotification extends Notification
                 ->greeting('Hello!' . $this->name)
                 ->line($this->message)
                 ->line('code: ' . $tempUser->otp);
-        }
+        // }
 
-        return response()->json([
-            'message'=>'Account doesn\'t exist'
-        ],404);
+        // return response()->json([
+        //     'message'=>'Account doesn\'t exist'
+        // ],404);
     }
 
     /**

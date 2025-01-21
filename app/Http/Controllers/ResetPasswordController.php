@@ -2,46 +2,58 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ResetPasswordRequest;
+use App\Http\Requests\Auth\ResetPasswordRequest;
 use App\Models\ResetPassword;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class ResetPasswordController extends Controller
 {
     private $otp;
 
-    public function __construct(){
-        
-    }
+    public function __construct() {}
 
-    public function reset_password(ResetPasswordRequest $request){
+    public function reset_password(ResetPasswordRequest $request)
+    {
 
-        $fetchedUser= ResetPassword::where('otp',$request->otp)->first();
-        if($fetchedUser==null){
+        $fetchedUser = ResetPassword::where('otp', $request->otp)->first();
+        if ($fetchedUser == null) {
             return response()->json([
-                'message'=>'Invalid OTP'
-            ],401);
+                'message' => 'Invalid OTP'
+            ], 401);
         }
 
-        if($request->email != $fetchedUser->email){
+        if ($request->email != $fetchedUser->email) {
             return response()->json([
-                'message'=>'OTP not valid'
-            ],401);
+                'message' => 'OTP not valid'
+            ], 401);
         }
 
-        if($fetchedUser->expires_at < now()){
+        if ($fetchedUser->expires_at < now()) {
             return response()->json([
-                'message'=>'OTP has expired, request for new OTP'
+                'message' => 'OTP has expired, request for new OTP'
             ]);
         }
 
-        if(!$token= auth()->attempt($request->toArray())){
-            return response()->json([
-                'error'=>'Unauthorized'
-            ],401);
+        // $storedOtp = // Retrieve from storage
+        // $enteredOtp = $request->input('otp');
+        $user= User::where('email',$request->email)->first();
+
+        try {
+            if (! $token = JWTAuth::fromUser($user)) { // Generate token for the user
+                return response()->json(['error' => 'Could not create token'], 500); // Internal Server Error
+            }
+        } catch (JWTException $e) {
+            return response()->json(['error' => 'Could not create token'], 500); // Internal Server Error
         }
 
-        return $this->createNewToken($token);
+        // Delete the OTP from storage
+        // ...
+
+        return response()->json(['token' => $token]);
     }
 
     public function createNewToken($token)
