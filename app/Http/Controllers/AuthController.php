@@ -10,6 +10,7 @@ use App\Http\Controllers\FacultyIdController;
 use App\Http\Requests\Auth\EmailVerificationRequest;
 use App\Models\EmailVerification;
 use App\Notifications\EmailVerificationNotification;
+use App\Notifications\ResetPasswordNotification;
 use Ichtrojan\Otp\Otp;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Session;
@@ -60,7 +61,7 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'OTP sent to your email'
-        ]);
+        ],200);
     }
 
     public function register(EmailVerificationRequest $request)
@@ -100,6 +101,33 @@ class AuthController extends Controller
 
         // $user= User::where('email', $request->email)->first();
         // $user->update(['email_verified_at'=>now()]);
+    }
+
+
+    public function forget_password(Request $request){
+        $validator= Validator::make($request->all(),[
+            'email'=>'required|string|email'
+        ]);
+
+        if($validator->fails()){
+            return response()->json($validator->error(),422);
+        }
+
+        $user= User::where('email',$request->email)->first();
+
+        if($user== null){
+            return response()->json([
+                "message"=>"Account does not exist, provide a valid email"
+            ]);
+        }
+
+        Notification::route('mail', $request->email)->notify(new ResetPasswordNotification($user));
+
+        return response()->json([
+            "message"=>"OTP has been sent to your email"
+        ],200);
+
+
     }
 
 
