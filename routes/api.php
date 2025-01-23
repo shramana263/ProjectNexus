@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EmailVeriFicationController;
 use App\Http\Controllers\ResetPasswordController;
+use App\Http\Controllers\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,4 +31,8 @@ Route::group(['middleware'=>'api','prefix'=>'auth'],function(){
     Route::get('/user',[AuthController::class,'user']);
     Route::post('/forget-password',[AuthController::class,'forget_password']);
     Route::post('/reset-password',[ResetPasswordController::class,'reset_password']);
+});
+
+Route::group(['middleware'=>'api','prefix'=>'authorized'],function(){
+    Route::get('/all-data',[UserController::class,'adminView']);
 });
