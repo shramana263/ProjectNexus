@@ -15,13 +15,27 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function adminView()
+    public function fetchView()
     {
-        return response()->json(
-            [
-                "data"=>User::all()
-            ]
-        );
+        $user= auth()->user();
+        if($user->role == 'admin'){
+            return response()->json([
+                'message' => 'Data for admin fetched successfully',
+                'users' => User::all()
+            ],200);
+        }
+        else if($user->role=='principle'){
+            return response()->json([
+                "message"=> "Data for principle fetched successfully",
+                "users"=> User::where('role','faculty')->where('college',$user->college)->get()
+            ],200);
+        }
+        else{
+            return response()->json([
+                "message"=> "Data for faculty fetched successfully",
+                "user"=> User::where('uuid',$user->uuid)->first()
+            ]);
+        }
     }
 
     /**
