@@ -14,6 +14,7 @@ use App\Notifications\ResetPasswordNotification;
 use Ichtrojan\Otp\Otp;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Validation\Rule;
 
 class AuthController extends Controller
 {
@@ -30,9 +31,16 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string',
             'email' => 'required|string|email|unique:users',
-            'role' => 'required|string',
+            'role' => [
+                'required',
+                'string',
+                Rule::in(['admin', 'student', 'faculty']), // Validate allowed roles
+            ],
             'contact_no' => 'required|string',
             'password' => 'required|string|min:6',
+            'college_id' => Rule::requiredIf(function () use ($request) {
+                return $request->input('role') !== 'admin';
+            }),
         ]);
 
         if ($validator->fails()) {

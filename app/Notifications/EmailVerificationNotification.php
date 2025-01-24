@@ -71,7 +71,7 @@ class EmailVerificationNotification extends Notification
             [
                 'password' => bcrypt($this->user->password),
                 'otp'=>random_int(100000,999999),
-                'expires_at' => $now->addDay()
+                'expires_at' => $now->addMinutes(60)
             ]
         ));
         return (new MailMessage)

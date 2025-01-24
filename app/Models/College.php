@@ -14,4 +14,9 @@ class College extends Model
     {
         return $this->hasMany(User::class); 
     }
+
+    protected $fillable = [
+        'name',
+        'code'
+    ];
 }

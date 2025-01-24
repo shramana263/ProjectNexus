@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('role')->default('student');
             $table->string('contact_no');
             $table->string('password');
+            $table->bigInteger('college_id')->nullable();
         });
     }
 

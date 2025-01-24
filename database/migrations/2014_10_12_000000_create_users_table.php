@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('contact_no');
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->unsignedBigInteger('college_id');
+            $table->unsignedBigInteger('college_id')->nullable();
             $table->foreign('college_id')->references('id')->on('colleges')->onDelete('cascade'); 
             $table->rememberToken();
             $table->timestamps();

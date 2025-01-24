@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\College\CollegeRequest;
 use App\Models\College;
 use Illuminate\Http\Request;
 
@@ -12,23 +13,40 @@ class CollegeController extends Controller
      */
     public function index()
     {
-        //
+        $colleges= College::all();
+        return response()->json([
+            'message' => 'Colleges fetched successfully',
+            'colleges' => $colleges
+        ],200);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(CollegeRequest $request)
     {
-        //
+        if(College::where('name', $request->name)->exists()){
+            return response()->json([
+                'message' => 'College already exists'
+            ],409);
+        }
+        $college= College::create($request->all());
+        return response()->json([
+            'message' => 'College created successfully',
+            'college' => $college
+        ],201);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(College $college)
+    public function show($id)
     {
-        //
+        $college= College::findorFail($id);
+        return response()->json([
+            'message' => 'College fetched successfully',
+            'college' => $college
+        ],200);
     }
 
     /**
