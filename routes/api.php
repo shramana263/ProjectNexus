@@ -34,5 +34,5 @@ Route::group(['middleware'=>'api','prefix'=>'auth'],function(){
 });
 
 Route::group(['middleware'=>'api','prefix'=>'authorized'],function(){
-    Route::get('/all-data',[UserController::class,'adminView']);
+    Route::get('/all-data',[UserController::class,'fetchView']);
 });

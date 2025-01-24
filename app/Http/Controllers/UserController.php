@@ -21,7 +21,7 @@ class UserController extends Controller
         if($user->role == 'admin'){
             return response()->json([
                 'message' => 'Data for admin fetched successfully',
-                'users' => User::all()
+                'users' => User::where('role','principle')->orWhere('role','faculty')->get()
             ],200);
         }
         else if($user->role=='principle'){
@@ -36,6 +36,10 @@ class UserController extends Controller
                 "user"=> User::where('uuid',$user->uuid)->first()
             ]);
         }
+    }
+
+    public function collaboration(){
+        //
     }
 
     /**
