@@ -53,6 +53,7 @@ class EmailVerificationNotification extends Notification
      */
     public function toMail(object $notifiable): MailMessage
     {
+        // dd($this->user);
         $now = Carbon::now();
         $fetchedUser= EmailVerification::where('email',$this->user->email)->first();
         if($fetchedUser){
@@ -69,9 +70,10 @@ class EmailVerificationNotification extends Notification
         $tempUser = EmailVerification::create(array_merge(
             $this->user->toArray(),
             [
+                // 'college_id'=>$this->user->college_id,
                 'password' => bcrypt($this->user->password),
                 'otp'=>random_int(100000,999999),
-                'expires_at' => $now->addMinutes(60)
+                'expires_at' => Carbon::now()->addDay()
             ]
         ));
         return (new MailMessage)

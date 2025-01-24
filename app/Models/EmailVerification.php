@@ -16,6 +16,7 @@ class EmailVerification extends Model
         'role',
         'password',
         'otp',
+        'expires_at',
         'college_id',
     ];
 }
