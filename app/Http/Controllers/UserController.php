@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
@@ -47,7 +49,32 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string',
+            'email' => 'required|string|email|unique:users',
+            'role' => [
+                'required',
+                'string',
+                Rule::in(['admin', 'student', 'faculty']), // Validate allowed roles
+            ],
+            'contact_no' => 'required|string',
+            'password' => 'required|string|min:6',
+            'college_id' => Rule::requiredIf(function () use ($request) {
+                return $request->input('role') !== 'admin';
+            }),
+        ]);
+        if ($validator->fails()) {
+            return response()->json($validator->errors()->toJson(), 400);
+        }
+        $user= User::create(array_merge(
+            $validator->validated(),
+            ['password' => bcrypt($request->password)]      
+        ));
+
+        return response()->json([
+            'message' => 'User successfully registered',
+            'user' => $user
+        ],201);
     }
 
     /**

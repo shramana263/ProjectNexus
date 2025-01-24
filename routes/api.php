@@ -36,8 +36,11 @@ Route::group(['middleware'=>'api','prefix'=>'auth'],function(){
 
 Route::group(['middleware'=>['api','auth','admin'], 'prefix'=>'admin'],function(){
     Route::post('/add-college',[CollegeController::class,'store']);
+    Route::post('/create-user',[UserController::class,'store']);
 });
 
 Route::group(['middleware'=>'api','prefix'=>'authorized'],function(){
     Route::get('/all-data',[UserController::class,'fetchView']);
+    Route::get('/all-colleges',[CollegeController::class,'index']);
+    Route::get('/college/{id}',[CollegeController::class,'show']);
 });

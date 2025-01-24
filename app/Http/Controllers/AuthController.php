@@ -47,7 +47,7 @@ class AuthController extends Controller
             return response()->json($validator->errors()->toJson(), 400);
         }
 
-        Session::put('user_data', $validator->validated());
+        // Session::put('user_data', $validator->validated());
         // $user= $request;
 
         // $user= User::create(array_merge(
