@@ -32,11 +32,13 @@ Route::group(['middleware'=>'api','prefix'=>'auth'],function(){
     Route::get('/user',[AuthController::class,'user']);
     Route::post('/forget-password',[AuthController::class,'forget_password']);
     Route::post('/reset-password',[ResetPasswordController::class,'reset_password']);
+    Route::post('/update-data',[AuthController::class,'update']);
 });
 
 Route::group(['middleware'=>['api','auth','admin'], 'prefix'=>'admin'],function(){
     Route::post('/add-college',[CollegeController::class,'store']);
     Route::post('/create-user',[UserController::class,'store']);
+    Route::post('/update-user',[UserController::class,'update']);
 });
 
 Route::group(['middleware'=>'api','prefix'=>'authorized'],function(){

@@ -34,7 +34,7 @@ class AuthController extends Controller
             'role' => [
                 'required',
                 'string',
-                Rule::in(['admin', 'student', 'faculty']), // Validate allowed roles
+                Rule::in(['admin', 'principal', 'faculty']), // Validate allowed roles
             ],
             'contact_no' => 'required|string',
             'password' => 'required|string|min:6',
@@ -177,5 +177,28 @@ class AuthController extends Controller
     {
         auth('api')->logout();
         return response()->json(['message' => 'User successfully signed out']);
+    }
+
+    public function updateData(Request $request)
+    {
+        $user= auth()->user();
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string',
+            'email' => 'required|string|email|unique:users,email,',
+            'contact_no' => 'required|string',
+            'password' => 'required|string|min:6',
+            'college_id' => Rule::requiredIf(function () use ($request) {
+                return $request->input('role') !== 'admin';
+            }),
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors()->toJson(), 400);
+        }
+
+        User::where('uuid',$user->uuid)->update(array_merge(
+            $validator->validated(),
+            ['password' => bcrypt($request->password)]      
+        ));
     }
 }

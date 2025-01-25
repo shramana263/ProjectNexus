@@ -88,9 +88,30 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request , string $uuid)
     {
-        //
+        $validator= Validator::make($request->all(),[
+            'name' => 'required|string',
+            'email' => 'required|string|email|unique:users,email,',
+            'role' => [
+                'required',
+                'string',
+                Rule::in(['admin', 'princpal', 'faculty']), // Validate allowed roles
+            ],
+            'contact_no' => 'required|string',
+            'password' => 'required|string|min:6',
+            'college_id' => Rule::requiredIf(function () use ($request) {
+                return $request->input('role') !== 'admin';
+            }),
+        ]);
+        
+        if($validator->fails()){
+            return response()->json($validator->errors()->toJson(), 400);
+        }
+        
+        $user= User::where('uuid',$uuid)->first();
+        $user->update($validator->all());
+
     }
 
     /**
