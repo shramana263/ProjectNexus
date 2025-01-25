@@ -38,9 +38,11 @@ Route::group(['middleware'=>'api','prefix'=>'auth'],function(){
 
 Route::group(['middleware'=>['api','auth','admin'], 'prefix'=>'admin'],function(){
     Route::post('/add-college',[CollegeController::class,'store']);
-    Route::post('/create-user',[UserController::class,'store']);
+    Route::post('/add-user',[UserController::class,'store']);
     Route::post('/update-user',[UserController::class,'update']);
     Route::get('/college/{id}',[CollegeController::class,'show']);
+    Route::post('/update/college/{id}',[CollegeController::class,'update']);
+    Route::delete('/delete/college/{id}',[CollegeController::class,'destroy']);
     Route::get('/filter-by-college/{id}',[FilterController::class,'filterByCollege']);
     Route::get('/filter-by-role/{role}',[FilterController::class,'filterByRole']);
 });

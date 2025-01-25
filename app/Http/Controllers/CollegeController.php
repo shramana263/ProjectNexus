@@ -52,16 +52,25 @@ class CollegeController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, College $college)
+    public function update(CollegeRequest $request, $id)
     {
-        //
+        $college= College::findorFail($id);
+        $college->update($request->all());
+        return response()->json([
+            'message' => 'College updated successfully',
+            'college' => $college
+        ],200);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(College $college)
+    public function destroy($id)
     {
-        //
+        $college= College::findorFail($id);
+        $college->delete();
+        return response()->json([
+            'message' => 'College deleted successfully'
+        ],200);   
     }
 }
