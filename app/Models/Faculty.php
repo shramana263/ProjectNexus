@@ -8,4 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 class Faculty extends Model
 {
     use HasFactory;
+
+    public function skill(){
+        return $this->belongsToMany(Skill::class,'faculty_skill','faculty_id','skill_id');
+    }
+
+    public function project(){
+        return $this->belongsToMany(Project::class,'faculty_project','faculty_id','project_id');
+    }
 }
