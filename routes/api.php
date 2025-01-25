@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CollegeController;
 use App\Http\Controllers\EmailVeriFicationController;
+use App\Http\Controllers\FilterController;
 use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\UserController;
 
@@ -39,6 +40,9 @@ Route::group(['middleware'=>['api','auth','admin'], 'prefix'=>'admin'],function(
     Route::post('/add-college',[CollegeController::class,'store']);
     Route::post('/create-user',[UserController::class,'store']);
     Route::post('/update-user',[UserController::class,'update']);
+    Route::get('/college/{id}',[CollegeController::class,'show']);
+    Route::get('/filter-by-college/{id}',[FilterController::class,'filterByCollege']);
+    Route::get('/filter-by-role/{role}',[FilterController::class,'filterByRole']);
 });
 
 Route::group(['middleware'=>'api','prefix'=>'authorized'],function(){
