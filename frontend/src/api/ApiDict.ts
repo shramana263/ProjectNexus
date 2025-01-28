@@ -1,4 +1,4 @@
-// Request body types
+
 interface AuthRequestBodies {
     sendOtp: {
       email: string;
