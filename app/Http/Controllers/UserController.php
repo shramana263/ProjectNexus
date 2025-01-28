@@ -55,7 +55,7 @@ class UserController extends Controller
             'role' => [
                 'required',
                 'string',
-                Rule::in(['admin', 'student', 'faculty']), // Validate allowed roles
+                Rule::in([ 'principal', 'faculty']), // Validate allowed roles
             ],
             'contact_no' => 'required|string',
             'password' => 'required|string|min:6',

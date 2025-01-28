@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\FacultyIdController;
 use App\Http\Requests\Auth\EmailVerificationRequest;
 use App\Models\EmailVerification;
+use App\Models\Faculty;
 use App\Notifications\EmailVerificationNotification;
 use App\Notifications\ResetPasswordNotification;
 use Ichtrojan\Otp\Otp;
@@ -40,6 +41,9 @@ class AuthController extends Controller
             'password' => 'required|string|min:6',
             'college_id' => Rule::requiredIf(function () use ($request) {
                 return $request->input('role') !== 'admin';
+            }),
+            'department' => Rule::requiredIf(function () use ($request) {
+                return $request->input('role') === 'faculty';
             }),
         ]);
 
@@ -91,16 +95,21 @@ class AuthController extends Controller
             return response()->json(['error'=>'OTP has expired, request for new OTP']);
         }
 
-        $user = User::create(array_merge(
-            $fetchedUser->toArray(),
-            [
-                'email_verified_at' => now()
-            ]
-        ));
-        // if($user->role == 'faculty'){
-        //     $facultyIdController = new FacultyIdController();
-        //     $facultyIdController->store($user->uuid);
-        // }
+        $user = User::create(
+            collect($fetchedUser->toArray())
+                ->except(['department'])
+                ->merge([
+                    'email_verified_at' => now()
+                ])
+                ->all()
+        );
+        if($user->role == 'faculty'){
+            $faculty= Faculty::create([
+                'user_id'=>$user->uuid,
+                'department'=>$fetchedUser->department
+            ]);
+        }
+        $user->faculty = $faculty;
 
         return response()->json([
             'message' => 'User successfully registered',

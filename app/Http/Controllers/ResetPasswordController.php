@@ -53,16 +53,20 @@ class ResetPasswordController extends Controller
         // Delete the OTP from storage
         // ...
 
-        return response()->json(['token' => $token]);
+        return response()->json([
+            'message'=>'User logged in successfully',
+            'token' => $token,
+            'user' => $user
+        ]);
     }
 
-    public function createNewToken($token)
+    public function updatePassword(Request $request)
     {
+        $user = User::find(Auth::uuid());
+        $user->password = bcrypt($request->password);
+        $user->save();
         return response()->json([
-            'access_token' => $token,
-            'token_type' => 'bearer',
-            'expires_in' => config('jwt.ttl') * 60,
-            'user' => auth()->user()
+            'message' => 'Password updated successfully'
         ]);
     }
 
