@@ -29,7 +29,7 @@ class UserController extends Controller
         else if($user->role=='principle'){
             return response()->json([
                 "message"=> "Data for principle fetched successfully",
-                "users"=> User::where('role','faculty')->where('college',$user->college)->get()
+                "users"=> User::where('role','faculty')->where('college',$user->college_id)->get()
             ],200);
         }
         else{

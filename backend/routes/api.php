@@ -7,6 +7,7 @@ use App\Http\Controllers\CollegeController;
 use App\Http\Controllers\EmailVeriFicationController;
 use App\Http\Controllers\FilterController;
 use App\Http\Controllers\ResetPasswordController;
+use App\Http\Controllers\SkillController;
 use App\Http\Controllers\UserController;
 
 /*
@@ -40,15 +41,18 @@ Route::group(['middleware'=>['api','auth','admin'], 'prefix'=>'admin'],function(
     Route::post('/add-college',[CollegeController::class,'store']);
     Route::post('/add-user',[UserController::class,'store']);
     Route::post('/update-user',[UserController::class,'update']);
-    Route::get('/college/{id}',[CollegeController::class,'show']);
+    // Route::get('/college/{id}',[CollegeController::class,'show']);
     Route::post('/update/college/{id}',[CollegeController::class,'update']);
     Route::delete('/delete/college/{id}',[CollegeController::class,'destroy']);
     Route::get('/filter-by-college/{id}',[FilterController::class,'filterByCollege']);
     Route::get('/filter-by-role/{role}',[FilterController::class,'filterByRole']);
+    Route::post('/add-skill',[SkillController::class,'store']);
+    Route::post('/update-skill/{id}',[SkillController::class,'update']);
 });
 
 Route::group(['middleware'=>'api','prefix'=>'authorized'],function(){
     Route::get('/all-data',[UserController::class,'fetchView']);
     Route::get('/all-colleges',[CollegeController::class,'index']);
     Route::get('/college/{id}',[CollegeController::class,'show']);
+    Route::get('/all-skills',[SkillController::class,'index']);
 });
