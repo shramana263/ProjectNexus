@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Skill;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class SkillController extends Controller
 {
@@ -20,7 +21,14 @@ class SkillController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validatedSkill= Validator::make($request->all(),[
+            'name'=>'required|string'
+        ]);
+        $skill= Skill::create($validatedSkill->validated());
+        return response()->json([
+            "message"=>"Skill created successfully",
+            "skill"=>$skill
+        ],201);
     }
 
     /**
@@ -34,9 +42,14 @@ class SkillController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Skill $skill)
+    public function update(Request $request, $id)
     {
-        //
+        $skill=Skill::find($id);
+        $skill->update($request->all());
+        return response()->json([
+            "message"=>"Skill updated successfully",
+            "skill"=>$skill
+        ],200);
     }
 
     /**
