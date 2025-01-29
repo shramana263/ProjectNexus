@@ -34,7 +34,6 @@ Route::group(['middleware'=>'api','prefix'=>'auth'],function(){
     Route::get('/user',[AuthController::class,'user']);
     Route::post('/forget-password',[AuthController::class,'forget_password']);
     Route::post('/reset-password',[ResetPasswordController::class,'reset_password']);
-    Route::post('/update-data',[AuthController::class,'update']);
 });
 
 Route::group(['middleware'=>['api','auth','admin'], 'prefix'=>'admin'],function(){
@@ -55,4 +54,5 @@ Route::group(['middleware'=>'api','prefix'=>'authorized'],function(){
     Route::get('/all-colleges',[CollegeController::class,'index']);
     Route::get('/college/{id}',[CollegeController::class,'show']);
     Route::get('/all-skills',[SkillController::class,'index']);
+    Route::post('/update-data',[AuthController::class,'update']);
 });
