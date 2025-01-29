@@ -1,0 +1,1 @@
+export const backendDomain = 'https://jis-api.healnearn.com';
