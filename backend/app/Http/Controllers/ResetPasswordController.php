@@ -63,6 +63,11 @@ class ResetPasswordController extends Controller
     public function updatePassword(Request $request)
     {
         $user = User::find(Auth::uuid());
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not found'
+            ], 404);
+        }
         $user->password = bcrypt($request->password);
         $user->save();
         return response()->json([

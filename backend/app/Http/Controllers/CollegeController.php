@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\College\CollegeRequest;
 use App\Models\College;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class CollegeController extends Controller
 {
@@ -14,6 +15,11 @@ class CollegeController extends Controller
     public function index()
     {
         $colleges= College::all();
+        if($colleges->count()==0){
+            return response()->json([
+                'message' => 'No colleges found'
+            ],404);
+        }
         return response()->json([
             'message' => 'Colleges fetched successfully',
             'colleges' => $colleges
@@ -25,12 +31,13 @@ class CollegeController extends Controller
      */
     public function store(CollegeRequest $request)
     {
-        if(College::where('name', $request->name)->exists()){
+        $validated = $request->validated();
+        if(College::where('name', $validated->name)->exists()){
             return response()->json([
                 'message' => 'College already exists'
             ],409);
         }
-        $college= College::create($request->all());
+        $college= College::create($validated->all());
         return response()->json([
             'message' => 'College created successfully',
             'college' => $college
@@ -43,6 +50,11 @@ class CollegeController extends Controller
     public function show($id)
     {
         $college= College::findorFail($id);
+        if(!$college){
+            return response()->json([
+                'message' => 'College not found'
+            ],404);
+        }
         return response()->json([
             'message' => 'College fetched successfully',
             'college' => $college
@@ -55,6 +67,11 @@ class CollegeController extends Controller
     public function update(CollegeRequest $request, $id)
     {
         $college= College::findorFail($id);
+        if(!$college){
+            return response()->json([
+                'message' => 'College not found'
+            ],404);
+        }
         $college->update($request->all());
         return response()->json([
             'message' => 'College updated successfully',
@@ -68,6 +85,11 @@ class CollegeController extends Controller
     public function destroy($id)
     {
         $college= College::findorFail($id);
+        if(!$college){
+            return response()->json([
+                'message' => 'College not found'
+            ],404);
+        }
         $college->delete();
         return response()->json([
             'message' => 'College deleted successfully'

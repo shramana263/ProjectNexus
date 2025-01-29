@@ -13,6 +13,7 @@ use App\Models\Faculty;
 use App\Notifications\EmailVerificationNotification;
 use App\Notifications\ResetPasswordNotification;
 use Ichtrojan\Otp\Otp;
+use Illuminate\Auth\Events\Validated;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\Rule;
@@ -79,6 +80,15 @@ class AuthController extends Controller
     public function register(EmailVerificationRequest $request)
     {
 
+        $validator= Validator::make($request->all(),[
+            'otp'=>'required|string|max:6',
+            'email'=>'required|string|email'
+        ]);
+
+        if($validator->fails()){
+            return response()->json($validator->errors(),422);
+        }
+
         $fetchedUser = EmailVerification::where('otp', $request->otp)->first();
         if ($fetchedUser==null) {
             return response()->json([
@@ -108,8 +118,8 @@ class AuthController extends Controller
                 'user_id'=>$user->uuid,
                 'department'=>$fetchedUser->department
             ]);
+            $user->faculty = $faculty;
         }
-        $user->faculty = $faculty;
 
         return response()->json([
             'message' => 'User successfully registered',
@@ -195,9 +205,11 @@ class AuthController extends Controller
             'name' => 'required|string',
             'email' => 'required|string|email|unique:users,email,',
             'contact_no' => 'required|string',
-            'password' => 'required|string|min:6',
             'college_id' => Rule::requiredIf(function () use ($request) {
                 return $request->input('role') !== 'admin';
+            }),
+            'department' => Rule::requiredIf(function () use ($request) {
+                return $request->input('role') === 'faculty';
             }),
         ]);
 
@@ -206,8 +218,15 @@ class AuthController extends Controller
         }
 
         User::where('uuid',$user->uuid)->update(array_merge(
-            $validator->validated(),
-            ['password' => bcrypt($request->password)]      
+            $validator->validated()     
         ));
     }
+
+    // public function validateToken(Request $request)
+    // {
+
+    //     return response()->json([
+    //         'message' => 'Token is valid'
+    //     ]);
+    // }
 }

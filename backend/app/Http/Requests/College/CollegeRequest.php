@@ -23,6 +23,8 @@ class CollegeRequest extends FormRequest
     {
         return [
             'name'=> 'required|string',
+            'address'=> 'required|string',
+            'contact_no'=> 'sometimes|string',
         ];
     }
 }

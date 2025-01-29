@@ -55,7 +55,7 @@ class UserController extends Controller
             'role' => [
                 'required',
                 'string',
-                Rule::in([ 'principal', 'faculty']), // Validate allowed roles
+                Rule::in(['admin', 'principal', 'faculty']), // Validate allowed roles
             ],
             'contact_no' => 'required|string',
             'password' => 'required|string|min:6',
@@ -91,17 +91,21 @@ class UserController extends Controller
     public function update(Request $request , string $uuid)
     {
         $validator= Validator::make($request->all(),[
+            'uuid' => 'required|string',
             'name' => 'required|string',
             'email' => 'required|string|email|unique:users,email,',
             'role' => [
                 'required',
                 'string',
-                Rule::in(['admin', 'princpal', 'faculty']), // Validate allowed roles
+                Rule::in(['admin','princpal', 'faculty']), // Validate allowed roles
             ],
             'contact_no' => 'required|string',
             'password' => 'required|string|min:6',
             'college_id' => Rule::requiredIf(function () use ($request) {
                 return $request->input('role') !== 'admin';
+            }),
+            'department' => Rule::requiredIf(function () use ($request) {
+                return $request->input('role') === 'faculty';
             }),
         ]);
         
@@ -111,6 +115,11 @@ class UserController extends Controller
         
         $user= User::where('uuid',$uuid)->first();
         $user->update($validator->all());
+
+        return response()->json([
+            'message' => 'User updated successfully',
+            'user' => $user
+        ],200);
 
     }
 
