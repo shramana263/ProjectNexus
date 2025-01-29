@@ -105,6 +105,12 @@ class AuthController extends Controller
             return response()->json(['error'=>'OTP has expired, request for new OTP']);
         }
 
+        if(User::where('email',$request->email)->exists()){
+            return response()->json([
+                'message'=>'User already exists'
+            ],409);
+        }
+
         $user = User::create(
             collect($fetchedUser->toArray())
                 ->except(['department'])

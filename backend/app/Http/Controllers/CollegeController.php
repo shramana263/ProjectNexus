@@ -31,13 +31,13 @@ class CollegeController extends Controller
      */
     public function store(CollegeRequest $request)
     {
-        $validated = $request->validated();
-        if(College::where('name', $validated->name)->exists()){
+        // $validated = $request->validated();
+        if(College::where('name', $request->name)->exists()){
             return response()->json([
                 'message' => 'College already exists'
             ],409);
         }
-        $college= College::create($validated->all());
+        $college= College::create($request->all());
         return response()->json([
             'message' => 'College created successfully',
             'college' => $college
