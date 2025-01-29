@@ -18,5 +18,6 @@ class EmailVerification extends Model
         'otp',
         'expires_at',
         'college_id',
+        'department',
     ];
 }
