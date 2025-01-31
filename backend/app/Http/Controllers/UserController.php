@@ -62,6 +62,9 @@ class UserController extends Controller
             'college_id' => Rule::requiredIf(function () use ($request) {
                 return $request->input('role') !== 'admin';
             }),
+            'department'=>Rule::requiredIf(function()use($request){
+                return $request->input('role')==='faculty';
+            }),
         ]);
         if ($validator->fails()) {
             return response()->json($validator->errors()->toJson(), 400);
@@ -88,7 +91,7 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request , string $uuid)
+    public function update(Request $request , $uuid)
     {
         $validator= Validator::make($request->all(),[
             'uuid' => 'required|string',
@@ -100,7 +103,7 @@ class UserController extends Controller
                 Rule::in(['admin','princpal', 'faculty']), // Validate allowed roles
             ],
             'contact_no' => 'required|string',
-            'password' => 'required|string|min:6',
+            'password' => 'sometimes|string|min:6',
             'college_id' => Rule::requiredIf(function () use ($request) {
                 return $request->input('role') !== 'admin';
             }),
@@ -114,7 +117,27 @@ class UserController extends Controller
         }
         
         $user= User::where('uuid',$uuid)->first();
-        $user->update($validator->all());
+        if(!$user){
+            return response()->json([
+                'message' => 'User not found'
+            ],404);
+        }
+
+        $user->uuid= $validator->validated()['uuid'];
+        $user->name= $validator->validated()['name'];
+        $user->email= $validator->validated()['email'];
+        $user->role= $validator->validated()['role'];
+        $user->contact_no= $validator->validated()['contact_no'];
+        if($validator->validated()['department']){
+            $user->department= $validator->validated()['department'];
+        }
+        if($validator->validated()['college_id']){
+            $user->department= $validator->validated()['college_id'];
+        }
+
+        $user->save();
+
+        
 
         return response()->json([
             'message' => 'User updated successfully',

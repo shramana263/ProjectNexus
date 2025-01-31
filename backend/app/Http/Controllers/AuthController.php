@@ -14,6 +14,7 @@ use App\Notifications\EmailVerificationNotification;
 use App\Notifications\ResetPasswordNotification;
 use Ichtrojan\Otp\Otp;
 use Illuminate\Auth\Events\Validated;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\Rule;
@@ -24,7 +25,7 @@ class AuthController extends Controller
 
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['sendOtp', 'register', 'login','forget_password']]);
+        $this->middleware('auth:api', ['except' => ['sendOtp', 'register', 'login', 'forget_password']]);
         $this->otp = new Otp;
     }
 
@@ -74,41 +75,40 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'OTP sent to your email'
-        ],200);
+        ], 200);
     }
 
     public function register(EmailVerificationRequest $request)
     {
 
-        $validator= Validator::make($request->all(),[
-            'otp'=>'required|string|max:6',
-            'email'=>'required|string|email'
+        $validator = Validator::make($request->all(), [
+            'otp' => 'required|string|max:6',
+            'email' => 'required|string|email'
         ]);
 
-        if($validator->fails()){
-            return response()->json($validator->errors(),422);
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
         }
 
         $fetchedUser = EmailVerification::where('otp', $request->otp)->first();
-        if ($fetchedUser==null) {
+        if ($fetchedUser == null) {
             return response()->json([
-                'message'=>'Invalid OTP given'
-            ],401);
+                'message' => 'Invalid OTP given'
+            ], 401);
         }
-        
+
         if ($request->otp != $fetchedUser->otp || $request->email != $fetchedUser->email) {
             return response()->json(['error' => 'Invalid OTP'], 401);
-            
         }
 
-        if($fetchedUser->expires_at < now()){
-            return response()->json(['error'=>'OTP has expired, request for new OTP']);
+        if ($fetchedUser->expires_at < now()) {
+            return response()->json(['error' => 'OTP has expired, request for new OTP']);
         }
 
-        if(User::where('email',$request->email)->exists()){
+        if (User::where('email', $request->email)->exists()) {
             return response()->json([
-                'message'=>'User already exists'
-            ],409);
+                'message' => 'User already exists'
+            ], 409);
         }
 
         $user = User::create(
@@ -119,10 +119,10 @@ class AuthController extends Controller
                 ])
                 ->all()
         );
-        if($user->role == 'faculty'){
-            $faculty= Faculty::create([
-                'user_id'=>$user->uuid,
-                'department'=>$fetchedUser->department
+        if ($user->role == 'faculty') {
+            $faculty = Faculty::create([
+                'user_id' => $user->uuid,
+                'department' => $fetchedUser->department
             ]);
             $user->faculty = $faculty;
         }
@@ -130,37 +130,36 @@ class AuthController extends Controller
         return response()->json([
             'message' => 'User successfully registered',
             'user' => $user
-        ],201);
+        ], 201);
 
         // $user= User::where('email', $request->email)->first();
         // $user->update(['email_verified_at'=>now()]);
     }
 
 
-    public function forget_password(Request $request){
-        $validator= Validator::make($request->all(),[
-            'email'=>'required|string|email'
+    public function forget_password(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|string|email'
         ]);
 
-        if($validator->fails()){
-            return response()->json($validator->error(),422);
+        if ($validator->fails()) {
+            return response()->json($validator->error(), 422);
         }
 
-        $user= User::where('email',$request->email)->first();
+        $user = User::where('email', $request->email)->first();
 
-        if($user== null){
+        if ($user == null) {
             return response()->json([
-                "message"=>"Account does not exist, provide a valid email"
+                "message" => "Account does not exist, provide a valid email"
             ]);
         }
 
         Notification::route('mail', $request->email)->notify(new ResetPasswordNotification($user));
 
         return response()->json([
-            "message"=>"OTP has been sent to your email"
-        ],200);
-
-
+            "message" => "OTP has been sent to your email"
+        ], 200);
     }
 
 
@@ -180,17 +179,33 @@ class AuthController extends Controller
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
+
         return $this->createNewToken($token);
     }
 
     public function createNewToken($token)
     {
-        return response()->json([
+        $response= response()->json([
             'access_token' => $token,
             'token_type' => 'bearer',
             'expires_in' => config('jwt.ttl') * 60,
             'user' => auth()->user()
-        ]);
+        ],200);
+
+        $cookie = Cookie::make(
+            'accessToken',   // Cookie name
+            $token,    // Cookie value
+            config('jwt.ttl') * 60,              // Expiry in minutes (Set to 60 for example)
+            '/',             // Path (default root)
+            null,            // Domain (null means it's available only for the current domain)
+            true,            // Secure (true for HTTPS)
+            true,            // HttpOnly (true for security)
+            'strict'         // SameSite policy
+        );
+
+        $response->withCookie($cookie); // Set the cookie on the response
+
+        return $response;
     }
 
     public function user()
@@ -206,7 +221,7 @@ class AuthController extends Controller
 
     public function updateData(Request $request)
     {
-        $user= auth()->user();
+        $user = auth()->user();
         $validator = Validator::make($request->all(), [
             'name' => 'required|string',
             'email' => 'required|string|email|unique:users,email,',
@@ -223,8 +238,8 @@ class AuthController extends Controller
             return response()->json($validator->errors()->toJson(), 400);
         }
 
-        User::where('uuid',$user->uuid)->update(array_merge(
-            $validator->validated()     
+        User::where('uuid', $user->uuid)->update(array_merge(
+            $validator->validated()
         ));
     }
 
