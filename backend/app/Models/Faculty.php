@@ -9,6 +9,12 @@ class Faculty extends Model
 {
     use HasFactory;
 
+    protected $fillable=[
+        'user_id',
+        'is_collaborating',
+        'department'
+    ];
+
     public function skill(){
         return $this->belongsToMany(Skill::class,'faculty_skill','faculty_id','skill_id');
     }
