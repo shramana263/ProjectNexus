@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('faculties', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->string('user_id');
+            $table->string('user_uuid');
             $table->foreign('user_id')->references('uuid')->on('users')->onDelete('cascade');
             $table->boolean('is_collaborating')->default(false);
             $table->string('department');

@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CollegeController;
 use App\Http\Controllers\EmailVeriFicationController;
 use App\Http\Controllers\FilterController;
+use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\SkillController;
 use App\Http\Controllers\UserController;
@@ -34,6 +35,7 @@ Route::group(['middleware'=>'api','prefix'=>'auth'],function(){
     Route::get('/user',[AuthController::class,'user']);
     Route::post('/forget-password',[AuthController::class,'forget_password']);
     Route::post('/reset-password',[ResetPasswordController::class,'reset_password']);
+    Route::post('/post/project',[ProjectController::class,'store']);
 });
 
 Route::group(['middleware'=>['api','auth','admin'], 'prefix'=>'admin'],function(){

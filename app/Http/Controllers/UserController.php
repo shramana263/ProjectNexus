@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Faculty;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -73,6 +74,13 @@ class UserController extends Controller
             $validator->validated(),
             ['password' => bcrypt($request->password)]      
         ));
+
+        if($user->role=='faculty'){
+            Faculty::create([
+                'user_id'=>$user->id,
+                'department'=>$request->department
+            ]);
+        }
 
         return response()->json([
             'message' => 'User successfully registered',

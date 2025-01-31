@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Project\ProjectRequest;
 use App\Models\Project;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class ProjectController extends Controller
@@ -18,9 +20,29 @@ class ProjectController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(ProjectRequest $request)
     {
-        //
+
+        if(auth()->user()->role !== 'faculty'){
+            return response()->json([
+                'message' => 'You are not authorized to create a project'
+            ], 403);
+        }
+
+        $project=Project::create(array_merge(
+            $request->validated(),
+                [
+                    'start_date'=>Carbon::now(),
+                    'status'=>'pending'
+                ]
+        ));
+
+        $project->faculty()->attach(auth()->user()->faculty->id);
+
+        return response()->json([
+            'message' => 'Project created successfully',
+            "project" => $project
+        ], 201);
     }
 
     /**
