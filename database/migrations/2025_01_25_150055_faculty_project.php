@@ -17,7 +17,8 @@ return new class extends Migration
             $table->foreign('faculty_id')->references('id')->on('faculties')->onDelete('cascade');
             $table->unsignedBigInteger('project_id');
             $table->foreign('project_id')->references('id')->on('projects')->onDelete('cascade');
-           });
+            $table->string('status')->default('pending');
+        });
     }
 
     /**

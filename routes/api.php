@@ -36,7 +36,7 @@ Route::group(['middleware'=>'api','prefix'=>'auth'],function(){
     Route::post('/forget-password',[AuthController::class,'forget_password']);
     Route::post('/reset-password',[ResetPasswordController::class,'reset_password']);
     Route::post('/post/project',[ProjectController::class,'store']);
-    Route::destroy('/delete/project/{id}',[ProjectController::class,'destroy']);
+    Route::delete('/delete/project/{id}',[ProjectController::class,'destroy']);
 });
 
 Route::group(['middleware'=>['api','auth','admin'], 'prefix'=>'admin'],function(){
