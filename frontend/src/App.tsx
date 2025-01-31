@@ -18,5 +18,11 @@ function App() {
     </Routes>
   )
 }
+const ProtectedRoute = () => {
+  
+  return (
+    <div>Protected</div>
+  )
+}
 
 export default App

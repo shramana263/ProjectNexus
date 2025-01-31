@@ -166,7 +166,7 @@ export const apiDictionary = {
       method: 'GET',
       requiresAuth: true
     },
-    //get faculty data filtered by role
+    //get faculty data filtered   by role
     filterByRole: {
       url: `${backendDomain}/api/admin/filter-by-role/:role`,
       method: 'GET',
