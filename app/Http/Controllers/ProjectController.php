@@ -14,7 +14,16 @@ class ProjectController extends Controller
      */
     public function index()
     {
-        //
+        $projects = Project::all();
+        if (!$projects) {
+            return response()->json([
+                'message' => 'No projects found'
+            ], 404);
+        }
+        return response()->json([
+            'message' => 'Projects fetched successfully',
+            'projects' => $projects
+        ], 200);
     }
 
     /**
@@ -64,8 +73,49 @@ class ProjectController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Project $project)
+    public function destroy($id)
     {
-        //
+        
+        $project = Project::find($id);
+        if (!$project) {
+            return response()->json([
+                'message' => 'Project not found'
+            ], 404);
+        }
+
+        if($project->status!=='pending' && auth()->user()->role !== 'admin'){
+            return response()->json([
+                'message' => 'Project cannot be deleted, contact to admin'
+            ], 403);
+        }
+        
+        $project->delete();
+        return response()->json([
+            'message' => 'Project deleted successfully'
+        ], 200);
     }
+
+    public function updateProjectStatus(Request $request, $id)
+    {
+        $project = Project::find($id)->get();
+        if (!$project) {
+            return response()->json([
+                'message' => 'Project not found'
+            ], 404);
+        }
+
+        if(auth()->user()->role !== 'admin'){
+            return response()->json([
+                'message' => 'You are not authorized to update project status'
+            ], 403);
+        }
+
+        $project->status = "ongoing";
+        $project->save();
+        return response()->json([
+            'message' => 'Project approved',
+            'project' => $project
+        ], 200);
+    }
+    
 }
