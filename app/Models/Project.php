@@ -21,4 +21,8 @@ class Project extends Model
     public function faculty(){
         return $this->belongsToMany(Faculty::class,'faculty_project','project_id','faculty_id');
     }
+
+    public function user(){
+        return $this->belongsTo(User::class);
+    }
 }

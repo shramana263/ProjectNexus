@@ -42,7 +42,8 @@ class ProjectController extends Controller
             $request->validated(),
                 [
                     'start_date'=>Carbon::now(),
-                    'status'=>'pending'
+                    'status'=>'pending',
+                    'user_uuid'=>auth()->user()->uuid
                 ]
         ));
 

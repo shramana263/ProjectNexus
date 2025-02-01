@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Project\CollaborationRequest;
+use App\Models\Faculty;
 use App\Models\Project;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -111,6 +112,19 @@ class CollaborationController extends Controller
 
     //view of collaboration data for a faculty
     public function viewCollaborationForFaculty(){
+        // $projects = Project::where('user_uuid', auth()->user()->uuid)->get();
+
+        // $projectIds = $projects->pluck('id')->toArray(); 
         
+        // $faculties = Faculty::whereHas('projects', function ($query) use ($projectIds) {
+        //     $query->whereIn('projects.id', $projectIds);
+        // })->get(); 
+
+        $data = Project::where('user_uuid', auth()->user()->uuid)->with('faculties')->get();
+
+        return response()->json([
+            "message"=>"Collaboration data fetched successfully",
+            "data"=>$data
+        ],200);
     }
 }
