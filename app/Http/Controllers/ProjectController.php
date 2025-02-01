@@ -65,9 +65,29 @@ class ProjectController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Project $project)
+    public function update(ProjectRequest $request, $id)
     {
-        //
+        $project= Project::where('id',$id)->first();
+        if($project==null){
+            return response()->json([
+                'message'=>'Project not found'
+            ],404);
+        }
+
+        if($project->status!=='pending'){
+            return response()->json([
+                "message"=>"Project cannot be updated, contact to admin"
+            ],403);
+        }
+
+        $project->name=$request->name;
+        $project->description=$request->description;
+        $project->budget=$request->budget;
+        $project->save();
+
+        return response()->json([
+            "message"=>"Project successfully updated"
+        ],200);
     }
 
     /**

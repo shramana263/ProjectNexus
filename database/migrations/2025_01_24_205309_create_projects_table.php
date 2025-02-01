@@ -20,6 +20,9 @@ return new class extends Migration
             $table->string('start_date');
             $table->string('end_date')->nullable();
             $table->string('budget')->nullable();
+            $table->string('user_uuid');
+            $table->foreign('user_uuid')->references('uuid')->on('users')->onDelete('cascade');
+
         });
     }
 

@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CollaborationController;
 use App\Http\Controllers\CollegeController;
 use App\Http\Controllers\EmailVeriFicationController;
 use App\Http\Controllers\FilterController;
@@ -37,6 +38,8 @@ Route::group(['middleware'=>'api','prefix'=>'auth'],function(){
     Route::post('/reset-password',[ResetPasswordController::class,'reset_password']);
     Route::post('/post/project',[ProjectController::class,'store']);
     Route::delete('/delete/project/{id}',[ProjectController::class,'destroy']);
+    Route::get('/all/projects',[ProjectController::class,'index']);
+    Route::post('/request/collaboration',[CollaborationController::class,'store']);
 });
 
 Route::group(['middleware'=>['api','auth','admin'], 'prefix'=>'admin'],function(){
@@ -50,6 +53,7 @@ Route::group(['middleware'=>['api','auth','admin'], 'prefix'=>'admin'],function(
     Route::get('/filter-by-role/{role}',[FilterController::class,'filterByRole']);
     Route::post('/add-skill',[SkillController::class,'store']);
     Route::put('/update-skill/{id}',[SkillController::class,'update']);
+    Route::get('/all/collaboration',[CollaborationController::class,'index']);
 });
 
 Route::group(['middleware'=>'api','prefix'=>'authorized'],function(){

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->timestamps();
             $table->string('user_uuid');
-            $table->foreign('user_id')->references('uuid')->on('users')->onDelete('cascade');
+            $table->foreign('user_uuid')->references('uuid')->on('users')->onDelete('cascade');
             $table->boolean('is_collaborating')->default(false);
             $table->string('department');
 
