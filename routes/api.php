@@ -40,6 +40,7 @@ Route::group(['middleware'=>'api','prefix'=>'auth'],function(){
     Route::delete('/delete/project/{id}',[ProjectController::class,'destroy']);
     Route::get('/all/projects',[ProjectController::class,'index']);
     Route::post('/request/collaboration',[CollaborationController::class,'store']);
+    Route::get('/details/collaboration',[CollaborationController::class,'viewCollaborationForFaculty']);
 });
 
 Route::group(['middleware'=>['api','auth','admin'], 'prefix'=>'admin'],function(){
@@ -54,6 +55,7 @@ Route::group(['middleware'=>['api','auth','admin'], 'prefix'=>'admin'],function(
     Route::post('/add-skill',[SkillController::class,'store']);
     Route::put('/update-skill/{id}',[SkillController::class,'update']);
     Route::get('/all/collaboration',[CollaborationController::class,'index']);
+    Route::put('/grant/request',[CollaborationController::class,'grantRequest']);
 });
 
 Route::group(['middleware'=>'api','prefix'=>'authorized'],function(){
